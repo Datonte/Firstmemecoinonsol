@@ -23,19 +23,27 @@ export default function BondingProgress() {
   useEffect(() => {
     // Fetch bonding curve data
     const fetchData = async () => {
-      setLoading(true);
-      const data = await fetchBondingProgress();
-      setProgress(data.progress);
-      setCurrentMarketCap(data.currentMarketCap);
-      setAthMarketCap(data.athMarketCap);
-      setIsBonded(data.isBonded);
-      setLoading(false);
+      try {
+        console.log('Fetching bonding data...');
+        const data = await fetchBondingProgress();
+        console.log('Received data:', data);
+        
+        setProgress(data.progress);
+        setCurrentMarketCap(data.currentMarketCap);
+        setAthMarketCap(data.athMarketCap);
+        setIsBonded(data.isBonded);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error in fetchData:', error);
+        setLoading(false);
+      }
     };
 
+    // Initial fetch
     fetchData();
 
-    // Refresh every 10 seconds
-    const interval = setInterval(fetchData, 10000);
+    // Refresh every 5 seconds for more real-time feel
+    const interval = setInterval(fetchData, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -54,14 +62,17 @@ export default function BondingProgress() {
       {/* Progress Bar Container */}
       <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden inner-shadow">
         <div 
-          className="h-full rounded-full transition-all duration-1000 relative"
-          style={{ width: `${progress}%` }}
+          className="h-full rounded-full transition-all duration-1000 ease-out relative"
+          style={{ width: `${Math.max(2, progress)}%` }}
         >
             {/* Striped Pattern */}
-            <div className="absolute inset-0 bg-yellow-300 w-full h-full" 
-                 style={{ 
-                   backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.4) 10px, rgba(255,255,255,0.4) 20px)' 
-                 }}>
+            <div 
+              className={`absolute inset-0 w-full h-full ${
+                isBonded ? 'bg-green-400' : 'bg-yellow-300'
+              }`}
+              style={{ 
+                backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.4) 10px, rgba(255,255,255,0.4) 20px)' 
+              }}>
             </div>
         </div>
       </div>

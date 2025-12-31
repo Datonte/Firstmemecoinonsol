@@ -5,6 +5,7 @@ import { useState } from "react";
 import Countdown from "./components/Countdown";
 import BondingProgress from "./components/BondingProgress";
 import FooterCards from "./components/FooterCards";
+import Fireworks from "./components/Fireworks";
 import { CONTRACT_ADDRESS, SOCIAL_LINKS, TOKEN_MINT_ADDRESS } from "./config";
 
 export default function Home() {
@@ -19,8 +20,11 @@ export default function Home() {
   return (
     <main className="min-h-screen relative flex flex-col items-center py-10 px-4">
       
+      {/* Fireworks Background */}
+      <Fireworks />
+      
       {/* Main Content */}
-      <div className="relative z-10 w-full max-w-6xl flex flex-col items-center text-center">
+      <div className="relative z-20 w-full max-w-6xl flex flex-col items-center text-center">
         
         {/* Top Header Removed as requested */}
 

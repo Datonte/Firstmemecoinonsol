@@ -1,4 +1,5 @@
-import { TOKEN_MINT_ADDRESS } from '../config';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { TOKEN_MINT_ADDRESS, SOLANA_RPC_ENDPOINT } from '../config';
 
 interface BondingCurveData {
   progress: number;
@@ -7,52 +8,90 @@ interface BondingCurveData {
   isBonded: boolean;
 }
 
+// Pump.fun program ID
+const PUMP_PROGRAM_ID = new PublicKey('6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P');
+
 export async function fetchBondingProgress(): Promise<BondingCurveData> {
   try {
-    // Fetch from Pump.fun API
-    const response = await fetch(`https://frontend-api.pump.fun/coins/${TOKEN_MINT_ADDRESS}`);
-    
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
+    const connection = new Connection(SOLANA_RPC_ENDPOINT, 'confirmed');
+    const mintPubkey = new PublicKey(TOKEN_MINT_ADDRESS);
+
+    // Derive the bonding curve PDA
+    const [bondingCurvePDA] = PublicKey.findProgramAddressSync(
+      [Buffer.from('bonding-curve'), mintPubkey.toBuffer()],
+      PUMP_PROGRAM_ID
+    );
+
+    console.log('Fetching bonding curve for:', TOKEN_MINT_ADDRESS);
+    console.log('Bonding curve PDA:', bondingCurvePDA.toString());
+
+    // Fetch the bonding curve account
+    const accountInfo = await connection.getAccountInfo(bondingCurvePDA);
+
+    if (!accountInfo || accountInfo.data.length === 0) {
+      console.log('Bonding curve account not found - token may have graduated');
+      return {
+        progress: 100,
+        currentMarketCap: 69000,
+        athMarketCap: 69000,
+        isBonded: true,
+      };
     }
 
-    const data = await response.json();
+    // Parse the bonding curve data
+    const data = accountInfo.data;
     
-    console.log('Pump.fun API response:', data);
+    // Pump.fun bonding curve structure (approximate):
+    // 8 bytes: discriminator
+    // 32 bytes: mint
+    // 8 bytes: virtual_token_reserves
+    // 8 bytes: virtual_sol_reserves  
+    // 8 bytes: real_token_reserves
+    // 8 bytes: real_sol_reserves
+    
+    const virtualTokenReserves = data.readBigUInt64LE(40);
+    const virtualSolReserves = data.readBigUInt64LE(48);
+    const realTokenReserves = data.readBigUInt64LE(56);
+    const realSolReserves = data.readBigUInt64LE(64);
 
-    // Extract market cap data
-    const currentMarketCap = data.usd_market_cap || 0;
-    
-    // Pump.fun graduation typically happens around $69k market cap (85 SOL at ~$800/SOL)
-    const graduationMarketCap = 69000;
-    
-    // Calculate progress based on market cap
-    let progress = 0;
-    let isBonded = false;
+    console.log('Bonding curve data:', {
+      virtualTokenReserves: virtualTokenReserves.toString(),
+      virtualSolReserves: virtualSolReserves.toString(),
+      realTokenReserves: realTokenReserves.toString(),
+      realSolReserves: realSolReserves.toString(),
+    });
 
-    // Check if token has graduated (bonding curve complete)
-    if (data.complete || data.raydium_pool) {
-      isBonded = true;
-      progress = 100;
-    } else if (currentMarketCap > 0) {
-      progress = Math.min((currentMarketCap / graduationMarketCap) * 100, 100);
-    }
+    // Convert lamports to SOL
+    const virtualSol = Number(virtualSolReserves) / 1e9;
+    const realSol = Number(realSolReserves) / 1e9;
 
-    // Get ATH (all-time high) - Pump.fun doesn't provide this directly in basic API
-    // We'll need to track it client-side or use their chart data
-    // For now, use current market cap as ATH if not graduated, or graduation cap if graduated
-    let athMarketCap = currentMarketCap;
+    // Pump.fun starts with 30 SOL virtual reserves and graduates at 85 SOL total
+    const initialVirtualSol = 30;
+    const graduationSol = 85;
     
-    // If there's a king_of_the_hill_timestamp or similar, the token was once at top
-    // Otherwise, use current or graduation as ATH
-    if (isBonded) {
-      athMarketCap = Math.max(currentMarketCap, graduationMarketCap);
-    }
+    // Calculate progress
+    const solRaised = Math.max(0, virtualSol - initialVirtualSol + realSol);
+    const progress = Math.min((solRaised / graduationSol) * 100, 100);
+    const isBonded = progress >= 100;
+
+    // Estimate market cap (1 SOL ≈ $800, adjust as needed)
+    const solPrice = 800;
+    const currentMarketCap = Math.round(solRaised * solPrice);
+    const graduationMarketCap = graduationSol * solPrice;
+    const athMarketCap = isBonded ? graduationMarketCap : currentMarketCap;
+
+    console.log('Calculated values:', {
+      solRaised,
+      progress: Math.round(progress),
+      currentMarketCap,
+      athMarketCap,
+      isBonded,
+    });
 
     return {
       progress: Math.round(progress),
-      currentMarketCap: Math.round(currentMarketCap),
-      athMarketCap: Math.round(athMarketCap),
+      currentMarketCap,
+      athMarketCap,
       isBonded,
     };
 
