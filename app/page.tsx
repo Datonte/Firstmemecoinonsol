@@ -6,13 +6,14 @@ import confetti from 'canvas-confetti';
 import Countdown from "./components/Countdown";
 import BondingProgress from "./components/BondingProgress";
 import FooterCards from "./components/FooterCards";
+import { CONTRACT_ADDRESS, SOCIAL_LINKS, TOKEN_MINT_ADDRESS } from "./config";
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("0x1234...5678");
+    navigator.clipboard.writeText(TOKEN_MINT_ADDRESS);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -146,7 +147,7 @@ export default function Home() {
              </div>
              <input 
                type="text" 
-               value="0x1234...5678" 
+               value={`${TOKEN_MINT_ADDRESS.slice(0, 6)}...${TOKEN_MINT_ADDRESS.slice(-6)}`} 
                readOnly
                className="flex-1 bg-transparent border-none outline-none px-4 text-gray-600 font-mono text-sm"
              />
@@ -162,12 +163,12 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 justify-center mt-12 items-center">
            
            {/* X (Twitter) Button - Circular */}
-           <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="bg-white w-14 h-14 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+           <a href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" className="bg-white w-14 h-14 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform">
               <svg viewBox="0 0 24 24" aria-hidden="true" className="w-6 h-6 fill-black"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
            </a>
 
            {/* Dexscreener Button - Circular */}
-           <a href="https://dexscreener.com" target="_blank" rel="noopener noreferrer" className="bg-white w-14 h-14 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+           <a href={SOCIAL_LINKS.dexscreener} target="_blank" rel="noopener noreferrer" className="bg-white w-14 h-14 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-green-500"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
            </a>
 
