@@ -5,7 +5,7 @@
 // ========================================
 
 // Replace this with YOUR token mint address when you launch on Pump.fun
-export const TOKEN_MINT_ADDRESS = 'HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC'; // Example token for testing
+export const TOKEN_MINT_ADDRESS = 'EpxJW2sVf5WLdRZkD9feaEWjVhEQNG3Yyps8Mijopump'; // Practice token for testing
 
 // Replace this with YOUR actual contract address
 export const CONTRACT_ADDRESS = '0x1234...5678'; // Update with your real contract address
