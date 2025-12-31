@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import confetti from 'canvas-confetti';
 
 export default function Countdown() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
