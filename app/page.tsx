@@ -1,8 +1,7 @@
 'use client';
 import { Twitter, BarChart3, Copy, Check, Send, Rocket } from 'lucide-react';
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
-import confetti from 'canvas-confetti';
+import { useState } from "react";
 import Countdown from "./components/Countdown";
 import BondingProgress from "./components/BondingProgress";
 import FooterCards from "./components/FooterCards";
@@ -10,7 +9,6 @@ import { CONTRACT_ADDRESS, SOCIAL_LINKS, TOKEN_MINT_ADDRESS } from "./config";
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(TOKEN_MINT_ADDRESS);
@@ -18,82 +16,10 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Continuous Rain Effect in Background
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const myConfetti = confetti.create(canvasRef.current, {
-      resize: true,
-      useWorker: true
-    });
-
-    // Define Heart Shape
-    const heart = confetti.shapeFromPath({
-      path: 'M167 72c19,-38 37,-56 75,-56 42,0 76,33 76,75 0,76 -76,151 -151,227 -76,-76 -151,-151 -151,-227 0,-42 33,-75 76,-75 38,0 57,18 75,56z'
-    });
-
-    const randomInRange = (min: number, max: number) => {
-      return Math.random() * (max - min) + min;
-    };
-
-    const fireFireworks = () => {
-      const x = randomInRange(0.1, 0.9); // Random launch position
-      
-      // Phase 1: Rocket trail shooting up - MORE VISIBLE
-      myConfetti({
-        particleCount: 80, // Increased from 30
-        angle: 90, // Straight up
-        spread: 8, // Tighter spread for concentrated trail
-        origin: { x, y: 1 }, // Launch from bottom
-        startVelocity: 100,
-        colors: ['#ffeb3b', '#ffd700', '#ffa500', '#ff6b00'], // Bright yellows and oranges
-        shapes: ['circle', 'square'], // Mix of shapes for visual interest
-        gravity: 0.6, // Slightly lower to make trail last longer
-        scalar: 1.4, // Much larger particles
-        ticks: 150, // Longer lasting
-        decay: 0.93,
-      });
-      
-      // Phase 2: Explosion at the top (delayed)
-      setTimeout(() => {
-        myConfetti({
-          particleCount: 200,
-          angle: 270, 
-          spread: 360, // Full 360° burst
-          origin: { x, y: 0.15 }, // Explode near the top
-          startVelocity: 60,
-          colors: ['#fbbf24', '#ef4444', '#3b82f6', '#10b981', '#f472b6', '#a78bfa', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'],
-          shapes: ['circle', 'square', 'star', heart],
-          gravity: 0.6,
-          scalar: 1.3,
-          ticks: 500,
-          decay: 0.91,
-        });
-      }, 500); // Delay matches the rocket reaching the top
-    };
-
-    // Initial burst
-    fireFireworks();
-
-    // Continuous fireworks every few seconds
-    const interval = setInterval(fireFireworks, 3000);
-
-    return () => {
-      clearInterval(interval);
-      myConfetti.reset();
-    };
-  }, []);
-
   return (
     <main className="min-h-screen relative flex flex-col items-center py-10 px-4">
       
-      {/* Background Canvas for Fireworks */}
-      <canvas 
-        ref={canvasRef}
-        className="fixed inset-0 w-full h-full pointer-events-none z-0"
-      />
-      
-      {/* 2. Main Content */}
+      {/* Main Content */}
       <div className="relative z-10 w-full max-w-6xl flex flex-col items-center text-center">
         
         {/* Top Header Removed as requested */}
