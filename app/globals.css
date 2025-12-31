@@ -1,26 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground-rgb: 0, 0, 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background-color: #e6e2cc; /* Slightly darker beige base */
+  /* Exact gradient match: Brighter sky blue top (#dbf4ff) -> fading hard into beige (#e6e2cc) around 35-40% */
+  background-image: linear-gradient(to bottom, #dbf4ff 0%, #dbf4ff 25%, #e6e2cc 40%); 
+  min-height: 100vh;
+}
+
+/* Text Stroke Utility */
+.text-stroke {
+  -webkit-text-stroke: 8px white;
+  paint-order: stroke fill;
+}
+
+.text-stroke-sm {
+  -webkit-text-stroke: 4px white;
+  paint-order: stroke fill;
 }
